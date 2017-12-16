@@ -4,11 +4,12 @@ from __future__ import unicode_literals
 from django.shortcuts import render
 from django.shortcuts import render
 from django.views.generic.base import View
+from django.shortcuts import HttpResponse
 
 from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
 
 from .models import Course,CourseResource
-from operation.models import UserFavorite
+from operation.models import UserFavorite,CourseComments,UserCourse
 
 class CourseListView(View):
     def get(self,request):
@@ -74,9 +75,59 @@ class CourseInfoView(View):
     '''
     def get(self, request, course_id):
         course = Course.objects.get(id=int(course_id))
+        #取出该课程所有的所有学生
+        user_courses = UserCourse.objects.filter(course=course)
+
+        #取出所有课程ID
+        course_ids = [user_course.course_id for user_course in user_courses]
+        #获取该用户学过的其它所有课程
+        related_courses = Course.objects.filter(id__in=course_ids).order_by("-click_nums")[:3]
         all_resource = CourseResource.objects.filter(course=course)
         return render(request, 'course-video.html', {
             "course": course,
-            "course_resources":all_resource
+            "course_resources":all_resource,
+            "user_courses":user_courses,
+            "related_courses":related_courses
 
         })
+class CommentView(View):
+    '''
+     课程评论信息
+     '''
+
+    def get(self, request, course_id):
+        course = Course.objects.get(id=int(course_id))
+        # 取出该课程所有的所有学生
+        user_courses = UserCourse.objects.filter(course=course)
+
+        # 取出所有课程ID
+        course_ids = [user_course.course_id for user_course in user_courses]
+        # 获取该用户学过的其它所有课程
+        related_courses = Course.objects.filter(id__in=course_ids).order_by("-click_nums")[:3]
+        all_resource = CourseResource.objects.filter(course=course)
+        all_comment = CourseComments.objects.filter(course_id=course_id)
+        return render(request, 'course-comment.html', {
+            "course": course,
+            "course_resources": all_resource,
+            "course_comments":all_comment,
+            "user_courses": user_courses,
+            "related_courses": related_courses
+        })
+
+class AddComments(View):
+    def post(self,request):
+        if not request.user.is_authenticated():
+            return HttpResponse('{"status":"fail","msg":"用户未登录"}', content_type="application/json")
+
+        course_id = request.POST.get("course_id",0)
+        comments = request.POST.get("comments",'')
+        if course_id > 0 and comments:
+            course_comments = CourseComments()
+            course = Course.objects.get(id = int(course_id))
+            course_comments.course = course
+            course_comments.comments = comments
+            course_comments.user = request.user
+            course_comments.save()
+            return HttpResponse('{"status":"success","msg":"评论成功"}', content_type="application/json")
+        else:
+            return HttpResponse('{"status":"fail","msg":"评论失败"}', content_type="application/json")
