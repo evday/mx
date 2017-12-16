@@ -101,3 +101,7 @@ ENV/
 .mypy_cache/
 # My configurations:
 .idea
+.apps/courses/migrations
+.apps/operation/migrations
+.apps/organization/migrations
+.apps/users/migrations

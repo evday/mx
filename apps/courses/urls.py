@@ -4,7 +4,7 @@
 
 from django.conf.urls import url
 
-from courses.views import CourseListView,CourseDetailView
+from courses.views import CourseListView,CourseDetailView,CourseInfoView
 
 urlpatterns = [
     #课程列表页面
@@ -12,5 +12,8 @@ urlpatterns = [
 
     #课程详情页面
     url(r'^detail/(?P<course_id>\d+)/$',CourseDetailView.as_view(),name='course_detail'),
+
+
+    url(r'^info/(?P<course_id>\d+)/$',CourseInfoView.as_view(),name='course_info'),
 
 ]
