@@ -3,12 +3,17 @@ from __future__ import unicode_literals
 
 from django.views.generic.base import View
 from django.shortcuts import render
+from django.http import HttpResponse
+
+
+from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
+
 
 from .models import CourseOrg,CityDict,Teacher
 from operation.models import UserFavorite
-from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
+from courses.models import Course
 from .forms import UserAskForm
-from django.http import HttpResponse
+
 
 # Create your views here.
 class OrgView(View):
@@ -194,4 +199,20 @@ class TeacherListView(View):
 
 class TeacherDetailView(View):
     def get(self,request,teacher_id):
-        return render(request,'teacher-detail.html',{})
+        teacher = Teacher.objects.get(id=int(teacher_id))
+        all_courses = Course.objects.filter(teacher=teacher)
+        has_teacher_faved = False
+        if UserFavorite.objects.filter(user=request.user,fav_type=3, fav_id=teacher.id ):
+            has_teacher_faved = True
+        has_org_faved = False
+        if UserFavorite.objects.filter(user=request.user, fav_type=2, fav_id=teacher.org_id):
+            has_org_faved = True
+        sorted_teachers = Teacher.objects.all().order_by("-click_nums")[:3]
+        return render(request,'teacher-detail.html',{
+            "teacher":teacher,
+            "all_courses":all_courses,
+            "sorted_teachers":sorted_teachers,
+            "has_teacher_faved":has_teacher_faved,
+            "has_org_faved":has_org_faved
+
+        })
