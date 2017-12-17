@@ -4,7 +4,7 @@
 
 from django.conf.urls import url
 
-from courses.views import CourseListView,CourseDetailView,CourseInfoView,CommentView,AddComments
+from courses.views import CourseListView,CourseDetailView,CourseInfoView,CommentView,AddComments,VideoPlayView
 
 urlpatterns = [
     #课程列表页面
@@ -20,4 +20,8 @@ urlpatterns = [
     url(r'^comment/(?P<course_id>\d+)/$',CommentView.as_view(),name='course_comments'),
     #添加课程评论
     url(r'^add_comment/$',AddComments.as_view(),name='add_comment'),
+
+    #课程视频
+    url(r'^video/(?P<video_id>\d+)/$', VideoPlayView.as_view(), name='video_play'),
+
 ]
