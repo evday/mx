@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.db.models import Q
 from django.shortcuts import render
 from django.shortcuts import render
 from django.views.generic.base import View
@@ -16,6 +17,13 @@ class CourseListView(View):
     def get(self,request):
         all_courses = Course.objects.all().order_by("-add_time") #减号表示降序排列
         hot_courses = Course.objects.all().order_by("-click_nums")[:3]
+
+        search_keywords = request.GET.get('keywords','')
+        if search_keywords:
+            all_courses = all_courses.filter(Q(name__icontains=search_keywords)|Q(desc__icontains=search_keywords)|Q(detail__icontains=search_keywords))
+
+
+
         sort = request.GET.get("sort", '')
         if sort:
             if sort == "students":
