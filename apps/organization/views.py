@@ -171,5 +171,27 @@ class AddFavView(View):
 
 class TeacherListView(View):
     def get(self,request):
-        all_teacher = Teacher.objects.all()
-        return render(request,'teachers-list.html',{"all_teacher":all_teacher})
+        all_teachers = Teacher.objects.all()
+
+        sort = request.GET.get("sort", '')
+        if sort:
+            if sort == "hot":
+                all_teacher = all_teachers.order_by("-click_nums")
+        sorted_teachers = Teacher.objects.all().order_by("-click_nums")[:3]
+        # 对讲师进行分页
+        try:
+            page = request.GET.get('page', 1)
+        except PageNotAnInteger:
+            page = 1
+        p = Paginator(all_teachers, 5, request=request)
+
+        courses = p.page(page)
+        return render(request,'teachers-list.html',{
+            "all_teachers":courses,
+            "sort":sort,
+            "sorted_teacher":sorted_teachers
+        })
+
+class TeacherDetailView(View):
+    def get(self,request,teacher_id):
+        return render(request,'teacher-detail.html',{})
