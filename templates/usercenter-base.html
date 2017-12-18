@@ -213,6 +213,7 @@
                 </div>
                 <input type='hidden' name='csrfmiddlewaretoken' value='DaP7IUKm9FA9nELA9YUlYYWpyIDdCiIP' />
             <input type='hidden' name='csrfmiddlewaretoken' value='799Y6iPeEDNSGvrTu3noBrO4MBLv6enY' />
+                {% csrf_token %}
             </form>
         </div>
     </div>
@@ -256,7 +257,7 @@
         <form id="jsSetNewPwdForm">
             <div class="box">
                 <span class="word2">密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码</span>
-                <input type="password" name="password" id="jsResetPwd" placeholder="请输入新密码"/>
+                <input type="password" name="password1" id="jsResetPwd" placeholder="请输入新密码"/>
             </div>
             <div class="box">
                 <span class="word2">确&nbsp;认&nbsp;密&nbsp;码</span>
