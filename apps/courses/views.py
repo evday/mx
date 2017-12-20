@@ -84,6 +84,8 @@ class CourseInfoView(LoginRequiredMixin, View):
     '''
     def get(self, request, course_id):
         course = Course.objects.get(id=int(course_id))
+        course.students += 1
+        course.save()
         #给用户和课程绑定关系
         user_courses = UserCourse.objects.filter(user=request.user,course=course)
         if not user_courses:

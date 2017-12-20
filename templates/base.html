@@ -42,10 +42,13 @@
                                 </dl>
                                 <div class="btn">
                                     <a class="personcenter fl" href="{% url 'users:user_info' %}">进入个人中心</a>
-                                    <a class="fr" href="">退出</a>
+                                    <a class="fr" href="{% url 'logout' %}">退出</a>
                                 </div>
                             </div>
                         </div>
+                        <a href="{% url 'users:my_message' %}">
+                        <div class="msg-num"><span id="MsgNum">{{ request.user.unread_num }}</span></div>
+                        </a>
                     {% else %}
 
                         <a style="color:white" class="fr registerbtn" href="{% url 'register' %}">注册</a>

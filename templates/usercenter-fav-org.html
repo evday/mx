@@ -8,7 +8,7 @@
         <div class="wp">
             <ul class="crumbs">
                 <li><a href="/">首页</a>></li>
-                <li><a href="/user/home/">个人中心</a>></li>
+                <li><a href="{% url 'users:user_info' %}">个人中心</a>></li>
                 <li>我的收藏</li>
             </ul>
         </div>
@@ -19,6 +19,7 @@
         <div class="personal_des Releasecont">
             <div class="head">
                 <h1>我的收藏</h1>
+                {% csrf_token %}
             </div>
 
         </div>
@@ -51,7 +52,7 @@
 
                             </div>
                             <span class="c8 clear">{{ org.address }}</span>
-                            <div class="delete jsDeleteFav_org" data-favid="1"></div>
+                            <div class="delete jsDeleteFav_org" data-favid="{{ org.id }}"></div>
                         </dd>
                     </dl>
                 </div>
@@ -63,5 +64,30 @@
         </div>
     </div>
 
+{% endblock %}
+
+{% block custom_js %}
+    <script>
+        $('.jsDeleteFav_org').on('click', function(){
+            var _this = $(this),
+                favid = _this.attr('data-favid');
+            alert(favid);
+
+            $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'org:add_fav' %}",
+                    data: {
+                        fav_type: 2,
+                        fav_id: favid,
+                        csrfmiddlewaretoken: '9joZ3R8YWcJZ1iBtFYPA20K5X75jBW50'
+                    },
+                    async: true,
+                    success: function(data) {
+                        Dml.fun.winReload();
+                    }
+                });
+        });
+    </script>
 {% endblock %}
 

@@ -4,13 +4,13 @@ from __future__ import unicode_literals
 import json
 
 from django.shortcuts import render,HttpResponseRedirect
-from django.contrib.auth import authenticate,login
+from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
 from django.views.generic.base import View
 from django.contrib.auth.hashers import make_password
 from django.core.urlresolvers import reverse
-from django.shortcuts import HttpResponse
+from django.shortcuts import HttpResponse,HttpResponseRedirect
 
 
 from .models import UserProfile,EmailVerifyRecord
@@ -18,8 +18,11 @@ from operation.models import UserMessage
 from users.forms import LoginForm,RegisterForm,ForgetForm,ModifyPwdForm,UploadImageForm,UserForm
 from utils.email_send import send_register_email
 from utils.mixin_utils import LoginRequiredMixin
-from operation.models import UserCourse,UserFavorite,Course
+from operation.models import UserCourse,UserFavorite,Course,UserMessage
 from organization.models import CourseOrg,Teacher
+
+
+from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
 
 
 
@@ -77,7 +80,13 @@ class RegisterView(View):
             return render(request, 'login.html')
         else:
             return render(request,'register.html',{"register_form":register_form})
-
+class LogoutView(View):
+    '''
+    用户登出
+    '''
+    def get(self, request):
+        logout(request)
+        return HttpResponseRedirect(reverse("index"))
 
 
 class LoginView(View):
@@ -295,3 +304,19 @@ class MyCourseFivView(LoginRequiredMixin,View):
         return render(request,'usercenter-fav-course.html',{
             "teacher_list":course_list
         })
+
+class MyMessageView(LoginRequiredMixin,View):
+    '''
+    我的消息
+    '''
+    def get(self,request):
+        all_message = UserMessage.objects.filter(user = request.user.id)
+        # 对消息进行分页
+        try:
+            page = request.GET.get('page', 1)
+        except PageNotAnInteger:
+            page = 1
+        p = Paginator(all_message, 5, request=request)
+
+        all_messages = p.page(page)
+        return render(request,'usercenter-message.html',{"all_message":all_messages})

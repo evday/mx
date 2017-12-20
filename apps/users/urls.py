@@ -3,7 +3,7 @@
 #date:"2017-12-17,22:35"
 
 from django.conf.urls import url
-from users.views import UserInfoView,UploadImageView,UpdatePwdView,SendEmailView,UpdateEmailView,MyCourseView,MyOrgFivView,MyTeacherFivView,MyCourseFivView
+from users.views import UserInfoView,UploadImageView,UpdatePwdView,SendEmailView,UpdateEmailView,MyCourseView,MyOrgFivView,MyTeacherFivView,MyCourseFivView,MyMessageView
 
 urlpatterns = [
     #用户信息
@@ -29,6 +29,8 @@ urlpatterns = [
     url(r'^my_fav_teacher/$', MyTeacherFivView.as_view(), name='my_fav_teacher'),
     #课程收藏
     url(r'^my_fav_course/$', MyCourseFivView.as_view(), name='my_fav_course'),
+    #我的消息
+    url(r'^my_message/$', MyMessageView.as_view(), name='my_message'),
 
 
 
