@@ -15,9 +15,12 @@ from django.shortcuts import HttpResponse
 
 from .models import UserProfile,EmailVerifyRecord
 from operation.models import UserMessage
-from users.forms import LoginForm,RegisterForm,ForgetForm,ModifyPwdForm,UploadImageForm
+from users.forms import LoginForm,RegisterForm,ForgetForm,ModifyPwdForm,UploadImageForm,UserForm
 from utils.email_send import send_register_email
 from utils.mixin_utils import LoginRequiredMixin
+from operation.models import UserCourse,UserFavorite,Course
+from organization.models import CourseOrg,Teacher
+
 
 
 class CustomBackend(ModelBackend):
@@ -156,6 +159,15 @@ class UserInfoView(LoginRequiredMixin, View):
     def get(self, request):
         return render(request, 'usercenter-info.html', {})
 
+    def post(self,request):
+        form = UserForm(data=request.POST,instance=request.user)
+        if form.is_valid():
+            form.save()
+            return HttpResponse('{"status":"success"}', content_type="application/json")
+        else:
+            return HttpResponse(json.dumps(form.errors), content_type="application/json")
+
+
 class UploadImageView(LoginRequiredMixin, View):
     '''
     用户修改头像
@@ -221,5 +233,65 @@ class UpdateEmailView(LoginRequiredMixin,View):
             return HttpResponse('{"email":"验证码错误"}', content_type="application/json")
 
 
+class MyCourseView(LoginRequiredMixin,View):
+    '''
+    我的课程
+    '''
+
+    def get(self,request):
+        user_courses = UserCourse.objects.filter(user=request.user)
+        return render(request,'usercenter-mycourse.html',{
+            "user_courses":user_courses
+        })
 
 
+class MyOrgFivView(LoginRequiredMixin,View):
+    '''
+    我的课程
+    '''
+
+    def get(self,request):
+        org_list = []
+        my_favs = UserFavorite.objects.filter(user=request.user,fav_type=2)
+        for my_fav in my_favs:
+            org_id = my_fav.fav_id
+
+            org = CourseOrg.objects.get(id=org_id)
+            org_list.append(org)
+        return render(request,'usercenter-fav-org.html',{
+            "org_list":org_list
+        })
+
+class MyTeacherFivView(LoginRequiredMixin,View):
+    '''
+    我的课程
+    '''
+
+    def get(self,request):
+        teacher_list = []
+        my_favs = UserFavorite.objects.filter(user=request.user,fav_type=3)
+        for my_fav in my_favs:
+            teacher_id = my_fav.fav_id
+
+            org = Teacher.objects.get(id=teacher_id)
+            teacher_list.append(org)
+        return render(request,'usercenter-fav-teacher.html',{
+            "teacher_list":teacher_list
+        })
+
+class MyCourseFivView(LoginRequiredMixin,View):
+    '''
+    我的课程
+    '''
+
+    def get(self,request):
+        course_list = []
+        my_favs = UserFavorite.objects.filter(user=request.user,fav_type=1)
+        for my_fav in my_favs:
+            course_id = my_fav.fav_id
+
+            org =Course.objects.get(id=course_id)
+            course_list.append(org)
+        return render(request,'usercenter-fav-course.html',{
+            "teacher_list":course_list
+        })
