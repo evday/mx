@@ -20,6 +20,7 @@ from utils.email_send import send_register_email
 from utils.mixin_utils import LoginRequiredMixin
 from operation.models import UserCourse,UserFavorite,Course,UserMessage
 from organization.models import CourseOrg,Teacher
+from users.models import Banner
 
 
 from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
@@ -311,6 +312,13 @@ class MyMessageView(LoginRequiredMixin,View):
     '''
     def get(self,request):
         all_message = UserMessage.objects.filter(user = request.user.id)
+
+        #用户进入消息页面，清空未读消息
+        all_unread_messages = UserMessage.objects.filter(user=request.user.id,has_read=False)
+        for unread_message in all_unread_messages:
+            unread_message.has_read = True
+            unread_message.save()
+
         # 对消息进行分页
         try:
             page = request.GET.get('page', 1)
@@ -320,3 +328,21 @@ class MyMessageView(LoginRequiredMixin,View):
 
         all_messages = p.page(page)
         return render(request,'usercenter-message.html',{"all_message":all_messages})
+
+class IndexView(View):
+    '''
+    首页
+    '''
+    def get(self,request):
+        all_banners = Banner.objects.all().order_by("index")
+        courses = Course.objects.filter(is_banner=False)[:6]
+        banner_courses = Course.objects.filter(is_banner=True)[:3]
+        courses_org = CourseOrg.objects.all()[:15]
+        return render(request,'index.html',{
+            "all_banners":all_banners,
+            "courses":courses,
+            "banner_courses":banner_courses,
+            "courses_org":courses_org
+
+
+        })
