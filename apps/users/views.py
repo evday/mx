@@ -334,6 +334,7 @@ class IndexView(View):
     首页
     '''
     def get(self,request):
+
         all_banners = Banner.objects.all().order_by("index")
         courses = Course.objects.filter(is_banner=False)[:6]
         banner_courses = Course.objects.filter(is_banner=True)[:3]
@@ -346,3 +347,26 @@ class IndexView(View):
 
 
         })
+
+def page_not_found(request):
+    '''
+    全局404处理函数
+    :param request:
+    :return:
+    '''
+    from django.shortcuts import render_to_response
+    response = render_to_response("404.html",{})
+    response.status_code = 404
+    return response
+
+def page_error(request):
+    '''
+    全局500处理函数
+    :param request:
+    :return:
+    '''
+    from django.shortcuts import render_to_response
+    response = render_to_response("500.html",{})
+    response.status_code = 500
+    return response
+

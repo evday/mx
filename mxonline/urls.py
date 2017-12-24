@@ -25,7 +25,7 @@ from django.views.static import serve
 
 from users.views import LoginView,RegisterView,ActiveUserView,ForgetPwdView,ResetView,ModifyPwdView,LogoutView,IndexView
 from organization.views import OrgView
-from mxonline.settings import MEDIA_ROOT
+from mxonline.settings import MEDIA_ROOT,STATIC_ROOT
 
 
 urlpatterns = [
@@ -49,6 +49,14 @@ urlpatterns = [
     #配置上传文件的访问处理
     url(r'^media/(?P<path>.*)/$',serve,{"document_root":MEDIA_ROOT}),
 
+    #处理debug为False 情况下的静态文件
+    url(r'^static/(?P<path>.*)/$',serve,{"document_root":STATIC_ROOT}),
+
     #用户相关url配置
     url(r'^users/', include('users.urls',namespace="users")),
 ]
+
+#配置全局404 500 页面
+
+handler404 = 'users.views.page_not_found'
+handler500 = 'users.views.page_error'
